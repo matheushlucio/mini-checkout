@@ -29,6 +29,18 @@
         }
       ],
       "status": "ABERTO"
+    },
+    {
+      "id": 2,
+      "itens": [
+        {
+          "produtoId": 1,
+          "nome": "Teclado",
+          "preco": 100,
+          "quantidade": 10
+        }
+      ],
+      "status": "ABERTO"
     }
   ]
 }
