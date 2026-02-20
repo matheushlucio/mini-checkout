@@ -67,33 +67,17 @@ function validarPedidoAberto(pedido) {
 // ============================================================================
 
 /**
- * Cria um novo pedido com itens
- * @param {Array} itens - Array de itens { produtoId, quantidade }
- * @returns {Object} Pedido criado com detalhes completos
- * @throws {Error} Se itens forem inválidos ou produto não existir
+ * Cria um novo pedido vazio com status ABERTO
+ * @returns {Object} Pedido criado com status ABERTO
+ * @throws {Error} Se falhar ao inserir no banco
  */
-async function criarPedido(itens) {
-  if (!itens || !Array.isArray(itens) || itens.length === 0) {
-    throw new Error("Pedido deve ter pelo menos um item");
-  }
-
-  // Criar registro do pedido no banco
+async function criarPedido() {
+  // Criar registro do pedido no banco com status ABERTO
   const resultado = await db.run(
     "INSERT INTO orders (status, created_at) VALUES (?, datetime('now'))",
-    ["FINALIZADO"],
+    ["ABERTO"],
   );
   const pedidoId = resultado.lastID;
-
-  // Inserir cada item do pedido
-  for (const item of itens) {
-    validarQuantidade(item.quantidade);
-    await validarProdutoExistente(item.produtoId);
-
-    await db.run(
-      "INSERT INTO order_items (order_id, product_id, quantidade) VALUES (?, ?, ?)",
-      [pedidoId, item.produtoId, item.quantidade],
-    );
-  }
 
   return await montarPedido(pedidoId);
 }

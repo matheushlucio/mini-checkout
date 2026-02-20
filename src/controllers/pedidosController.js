@@ -7,13 +7,13 @@ const pedidosService = require("../services/pedidosService");
 
 /**
  * POST /pedidos
- * Cria um novo pedido com itens
- * @param {Object} req - Request body deve conter { itens: [{produtoId, quantidade}] }
+ * Cria um novo pedido automaticamente com status ABERTO
+ * @param {Object} req - Request (body opcional, não utilizado)
  * @param {Object} res - Response HTTP
  */
 async function criarPedido(req, res) {
   try {
-    const pedido = await pedidosService.criarPedido(req.body.itens);
+    const pedido = await pedidosService.criarPedido();
     res.status(201).json(pedido);
   } catch (error) {
     res.status(400).json({ erro: error.message });

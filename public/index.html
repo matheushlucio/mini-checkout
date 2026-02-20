@@ -394,23 +394,52 @@
         }
       }
 
-      const itens = cart.map(i => ({ produtoId: i.produtoId, quantidade: i.quantidade }));
+      try {
+        // 1. Criar pedido vazio
+        const resPedido = await fetch(`${API}/pedidos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
 
-      const res = await fetch(`${API}/pedidos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ itens })
-      });
+        const pedido = await resPedido.json();
+        if (!resPedido.ok) {
+          alert(pedido.erro || 'Erro ao criar pedido');
+          return;
+        }
 
-      const data = await res.json();
-      if (!res.ok) {
-        alert(data.erro || 'Erro ao finalizar pedido');
-        return;
+        // 2. Adicionar itens ao pedido
+        for (const item of cart) {
+          const resItem = await fetch(`${API}/pedidos/${pedido.id}/itens`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ produtoId: item.produtoId, quantidade: item.quantidade })
+          });
+
+          if (!resItem.ok) {
+            const erroProduto = await resItem.json();
+            alert(erroProduto.erro || `Erro ao adicionar item ${item.produtoId}`);
+            return;
+          }
+        }
+
+        // 3. Finalizar pedido
+        const resFinalizar = await fetch(`${API}/pedidos/${pedido.id}/finalizar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!resFinalizar.ok) {
+          const erroFinalizar = await resFinalizar.json();
+          alert(erroFinalizar.erro || 'Erro ao finalizar pedido');
+          return;
+        }
+
+        alert(`Pedido criado com sucesso! ID: ${pedido.id} | Total: ${pedido.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`);
+        limparCarrinho();
+        listarPedidos();
+      } catch (error) {
+        alert(`Erro: ${error.message}`);
       }
-
-      alert(`Pedido criado com sucesso! ID: ${data.id} | Total: ${data.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`);
-      limparCarrinho();
-      listarPedidos();
     }
 
     async function criarProduto() {
