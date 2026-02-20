@@ -11,36 +11,5 @@
       "preco": 120
     }
   ],
-  "pedidos": [
-    {
-      "id": 1,
-      "itens": [
-        {
-          "produtoId": 1,
-          "nome": "Teclado",
-          "preco": 100,
-          "quantidade": 1
-        },
-        {
-          "produtoId": 2,
-          "nome": "Mouse Gamer",
-          "preco": 120,
-          "quantidade": 10
-        }
-      ],
-      "status": "ABERTO"
-    },
-    {
-      "id": 2,
-      "itens": [
-        {
-          "produtoId": 1,
-          "nome": "Teclado",
-          "preco": 100,
-          "quantidade": 10
-        }
-      ],
-      "status": "ABERTO"
-    }
-  ]
+  "pedidos": []
 }

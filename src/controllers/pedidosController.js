@@ -1,52 +1,95 @@
-const pedidosService = require('../services/pedidosService');
+const pedidosService = require("../services/pedidosService");
 
-function criarPedido(req, res) {
+// ============================================================================
+// CONTROLADOR DE PEDIDOS
+// Responsável por: validações de entrada, chamadas ao serviço e respostas HTTP
+// ============================================================================
+
+/**
+ * POST /pedidos
+ * Cria um novo pedido com itens
+ * @param {Object} req - Request body deve conter { itens: [{produtoId, quantidade}] }
+ * @param {Object} res - Response HTTP
+ */
+async function criarPedido(req, res) {
   try {
-    const pedido = pedidosService.criarPedido(req.body.itens);
+    const pedido = await pedidosService.criarPedido(req.body.itens);
     res.status(201).json(pedido);
   } catch (error) {
     res.status(400).json({ erro: error.message });
   }
 }
 
-
-// POST /pedidos/:id/itens
-function adicionarItem(req, res) {
+/**
+ * POST /pedidos/:id/itens
+ * Adiciona um item a um pedido aberto
+ * @param {Object} req - URL param: id | Body deve conter { produtoId, quantidade }
+ * @param {Object} res - Response HTTP
+ */
+async function adicionarItem(req, res) {
   const pedidoId = Number(req.params.id);
   const { produtoId, quantidade } = req.body;
 
+  // Validação: ID do produto
+  if (!produtoId || isNaN(produtoId)) {
+    return res.status(400).json({ erro: "ID do produto inválido" });
+  }
+
+  // Validação: Quantidade
+  if (quantidade == null || isNaN(quantidade) || quantidade <= 0) {
+    return res.status(400).json({
+      erro: "Quantidade não pode ser zero ou negativa",
+    });
+  }
+
   try {
-    pedidosService.adicionarItem(pedidoId, produtoId, quantidade);
-    res.json({ mensagem: 'Item adicionado com sucesso' });
+    await pedidosService.adicionarItem(pedidoId, produtoId, quantidade);
+    res.json({ mensagem: "Item adicionado com sucesso" });
   } catch (error) {
     res.status(400).json({ erro: error.message });
   }
 }
 
-// POST /pedidos/:id/finalizar
-function finalizarPedido(req, res) {
+/**
+ * POST /pedidos/:id/finalizar
+ * Finaliza um pedido (bloqueia adição de novos itens)
+ * @param {Object} req - URL param: id
+ * @param {Object} res - Response HTTP
+ */
+async function finalizarPedido(req, res) {
   const pedidoId = Number(req.params.id);
 
   try {
-    pedidosService.finalizarPedido(pedidoId);
-    res.json({ mensagem: 'Pedido finalizado com sucesso' });
+    await pedidosService.finalizarPedido(pedidoId);
+    res.json({ mensagem: "Pedido finalizado com sucesso" });
   } catch (error) {
     res.status(400).json({ erro: error.message });
   }
 }
 
-// GET /pedidos
-function listarPedidos(req, res) {
-  const pedidos = pedidosService.listarPedidos();
-  res.json(pedidos);
+/**
+ * GET /pedidos
+ * Lista todos os pedidos com seus itens
+ */
+async function listarPedidos(req, res) {
+  try {
+    const pedidos = await pedidosService.listarPedidos();
+    res.json(pedidos);
+  } catch (error) {
+    res.status(500).json({ erro: error.message });
+  }
 }
 
-function deletarPedido(req, res) {
-  const id = Number(req.params.id);
+/**
+ * DELETE /pedidos/:id
+ * Deleta um pedido pelo ID
+ */
+async function deletarPedido(req, res) {
+  const pedidoId = Number(req.params.id);
 
   try {
-    pedidosService.deletarPedido(id);
-    res.json({ mensagem: 'Pedido deletado com sucesso' });
+    await pedidosService.deletarPedido(pedidoId);
+    res.json({ mensagem: "Pedido deletado com sucesso" });
   } catch (error) {
     res.status(400).json({ erro: error.message });
   }
@@ -57,5 +100,5 @@ module.exports = {
   adicionarItem,
   finalizarPedido,
   listarPedidos,
-  deletarPedido
+  deletarPedido,
 };

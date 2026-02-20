@@ -154,13 +154,42 @@
       margin-top: 15px;
     }
 
+    /* Layout helpers */
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .prod-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .prod-card {
+      width: 220px;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--card);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .btn-primary.strong {
+      background: var(--primary);
+      color: white;
+      padding: 12px 18px;
+      font-size: 15px;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.18);
+    }
+
     @media (min-width: 900px) {
       main {
         grid-template-columns: 1fr 1fr;
       }
 
-      .full {
-        grid-column: span 2;
+      .right-column {
+        grid-column: 2;
       }
     }
   </style>
@@ -188,76 +217,38 @@
         <button class="btn-primary" onclick="criarProduto()">
           Criar
         </button>
-        <button class="btn-secondary" onclick="listarProdutos()">
-          Listar
+        <button class="btn-secondary" onclick="carregarCatalogo()">
+          Atualizar Catálogo
         </button>
       </div>
 
-      <div class="form-group">
-        <br>
-        <label>ID para deletar</label>
-        <input id="deleteProdutoId" type="number" />
-      </div>
+      <br>
 
-      <button class="btn-danger" onclick="deletarProduto()">
-        Deletar
-      </button>
+      <!-- Controle de deleção por ID removido (fluxo de compra não deve expor IDs) -->
 
-      <pre id="produtos"></pre>
+      <div id="produtosContainer"></div>
+      <pre id="produtos" style="display:none"></pre>
     </div>
 
-    <!-- PEDIDOS -->
-    <div class="card">
-      <h2>Pedidos</h2>
+    <div class="right-column">
+      <!-- CARRINHO -->
+      <div class="card">
+        <h2>Carrinho</h2>
 
-      <div class="actions">
-        <button class="btn-primary" onclick="criarPedido()">
-          Criar Pedido
-        </button>
-        <button class="btn-secondary" onclick="listarPedidos()">
-          Listar
-        </button>
+        <div id="cartContainer">
+          <p>Seu carrinho está vazio.</p>
+        </div>
+
+        <div style="margin-top:10px" class="actions">
+          <button class="btn-primary strong" onclick="finalizarCarrinho()">Finalizar Pedido</button>
+          <button class="btn-secondary" onclick="limparCarrinho()">Limpar Carrinho</button>
+        </div>
       </div>
 
-      <div class="form-group">
-        <br>
-        <label>ID para deletar</label>
-        <input id="deletePedidoId" type="number" />
-      </div>
-
-      <button class="btn-danger" onclick="deletarPedido()">
-        Deletar
-      </button>
-
-      <div id="pedidosContainer"></div>
-    </div>
-
-    <!-- ITENS -->
-    <div class="card full">
-      <h2>Itens do Pedido</h2>
-
-      <div class="form-group">
-        <label>ID do pedido</label>
-        <input id="pedidoId" type="number" />
-      </div>
-
-      <div class="form-group">
-        <label>ID do produto</label>
-        <input id="produtoId" type="number" />
-      </div>
-
-      <div class="form-group">
-        <label>Quantidade</label>
-        <input id="quantidade" type="number" min="1" />
-      </div>
-
-      <div class="actions">
-        <button class="btn-primary" onclick="adicionarItem()">
-          Adicionar Item
-        </button>
-        <button class="btn-secondary" onclick="finalizarPedido()">
-          Finalizar Pedido
-        </button>
+      <!-- PEDIDOS (consulta) -->
+      <div class="card">
+        <h2>Pedidos Finalizados</h2>
+        <div id="pedidosContainer"></div>
       </div>
     </div>
   </main>
@@ -269,22 +260,178 @@
       document.getElementById(id).value = '';
     }
 
+    async function carregarProdutosDropdown() {
+      const res = await fetch(`${API}/produtos`);
+      const produtos = await res.json();
+
+      const select = document.getElementById('produtoSelect');
+      select.innerHTML = '';
+
+      produtos.forEach(produto => {
+        const option = document.createElement('option');
+        option.value = produto.id;
+        option.textContent = `${produto.nome} - ${produto.preco.toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        })}`;
+        select.appendChild(option);
+      });
+    }
+
+    let produtosCatalogo = [];
+    let cart = [];
+
+    async function carregarCatalogo() {
+      const res = await fetch(`${API}/produtos`);
+      produtosCatalogo = await res.json();
+      renderProdutos();
+    }
+
+    function renderProdutos() {
+      const container = document.getElementById('produtosContainer');
+      if (!produtosCatalogo || produtosCatalogo.length === 0) {
+        container.innerHTML = '<p>Nenhum produto disponível.</p>';
+        return;
+      }
+      container.innerHTML = `
+        <div class="prod-grid">
+          ${produtosCatalogo.map(p => `
+            <div class="prod-card">
+              <h4 style="margin:0 0 8px 0">${p.nome}</h4>
+              <p style="margin:0 0 12px 0;color:#6b7280">${p.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+              <div style="text-align:right"><button class="btn-primary" onclick="addToCart(${p.id})">Adicionar ao Carrinho</button></div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function addToCart(produtoId) {
+      const produto = produtosCatalogo.find(p => p.id === produtoId);
+      if (!produto) return alert('Produto não encontrado');
+
+      const existing = cart.find(i => i.produtoId === produtoId);
+      if (existing) {
+        existing.quantidade += 1;
+      } else {
+        cart.push({ produtoId: produto.id, nome: produto.nome, preco: produto.preco, quantidade: 1 });
+      }
+      renderCart();
+    }
+
+    function renderCart() {
+      const container = document.getElementById('cartContainer');
+      if (!cart || cart.length === 0) {
+        container.innerHTML = '<p>Seu carrinho está vazio.</p>';
+        return;
+      }
+
+      const rows = cart.map(item => `
+        <tr>
+          <td>${item.nome}</td>
+          <td style="width:140px;text-align:center">
+            <button onclick="decreaseQty(${item.produtoId})">-</button>
+            <span style="margin:0 8px">${item.quantidade}</span>
+            <button onclick="increaseQty(${item.produtoId})">+</button>
+          </td>
+          <td>${item.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+          <td style="text-align:right"><button class="btn-danger" onclick="removeFromCart(${item.produtoId})">Remover</button></td>
+        </tr>
+      `).join('');
+
+      const total = cart.reduce((s, it) => {
+        const itemTotal = (it.preco || 0) * (it.quantidade || 0);
+        return s + itemTotal;
+      }, 0);
+
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr><th>Produto</th><th>Qtd</th><th>Preço Unit.</th><th></th></tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+        <p style="text-align:right;margin-top:10px"><strong>Total:</strong> ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+      `;
+    }
+
+    function increaseQty(produtoId) {
+      const it = cart.find(i => i.produtoId === produtoId);
+      if (!it) return;
+      it.quantidade += 1;
+      renderCart();
+    }
+
+    function decreaseQty(produtoId) {
+      const it = cart.find(i => i.produtoId === produtoId);
+      if (!it) return;
+      it.quantidade -= 1;
+      if (it.quantidade <= 0) removeFromCart(produtoId);
+      else renderCart();
+    }
+
+    function removeFromCart(produtoId) {
+      cart = cart.filter(i => i.produtoId !== produtoId);
+      renderCart();
+    }
+
+    function limparCarrinho() {
+      cart = [];
+      renderCart();
+    }
+
+    async function finalizarCarrinho() {
+      if (!cart || cart.length === 0) {
+        return alert('Carrinho vazio. Adicione produtos antes de finalizar.');
+      }
+
+      // Validar cada item antes de enviar
+      for (const item of cart) {
+        if (!item.produtoId || item.quantidade <= 0) {
+          return alert('Erro: há itens inválidos no carrinho.');
+        }
+      }
+
+      const itens = cart.map(i => ({ produtoId: i.produtoId, quantidade: i.quantidade }));
+
+      const res = await fetch(`${API}/pedidos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itens })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.erro || 'Erro ao finalizar pedido');
+        return;
+      }
+
+      alert(`Pedido criado com sucesso! ID: ${data.id} | Total: ${data.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`);
+      limparCarrinho();
+      listarPedidos();
+    }
+
     async function criarProduto() {
       const nome = nomeProduto.value;
       const preco = Number(precoProduto.value);
 
-      if (!nome || !preco) return alert('Preencha todos os campos.');
+      if (!nome) return alert('Nome do produto é obrigatório.');
+      if (!preco || preco <= 0) return alert('Preço não pode ser negativo ou zero.');
 
-      await fetch(`${API}/produtos`, {
+      const res = await fetch(`${API}/produtos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nome, preco })
       });
 
+      const data = await res.json();
+      if (!res.ok) return alert(data.erro || 'Erro ao criar produto');
+
       limparCampo('nomeProduto');
       limparCampo('precoProduto');
-
-      listarProdutos();
+      carregarCatalogo();
       alert('Produto criado com sucesso');
     }
 
@@ -306,7 +453,7 @@
     }
 
     async function criarPedido() {
-      const produtoId = Number(document.getElementById('produtoId').value);
+      const produtoId = Number(document.getElementById('produtoSelect').value);
       const quantidade = Number(document.getElementById('quantidade').value);
 
       if (!produtoId || !quantidade) {
@@ -363,9 +510,12 @@
       </tr>
     `).join('');
 
+        const dataFormatada = pedido.data ? new Date(pedido.data).toLocaleString('pt-BR') : '';
+
         container.innerHTML += `
       <div class="pedido-card">
         <h3>Pedido #${pedido.id} - ${pedido.status}</h3>
+        <p style="margin:6px 0 10px 0;color:var(--gray)">Data: ${dataFormatada}</p>
         <table>
           <thead>
             <tr>
@@ -397,11 +547,11 @@
 
     async function adicionarItem() {
       const pedidoId = Number(document.getElementById('pedidoId').value);
-      const produtoId = Number(document.getElementById('produtoId').value);
+      const produtoId = Number(document.getElementById('produtoSelect').value);
       const quantidade = Number(document.getElementById('quantidade').value);
 
       if (!pedidoId || !produtoId || !quantidade) {
-        alert('Preencha todos os campos corretamente.');
+        alert('Preencha todos os campos.');
         return;
       }
 
@@ -418,8 +568,8 @@
         return;
       }
 
-      alert('Item adicionado com sucesso');
       listarPedidos();
+      alert('Item adicionado!');
     }
 
 
@@ -439,6 +589,12 @@
       listarPedidos();
       alert('Pedido finalizado');
     }
+
+    window.onload = () => {
+      carregarCatalogo();
+      listarPedidos();
+      renderCart();
+    };
 
   </script>
 </body>

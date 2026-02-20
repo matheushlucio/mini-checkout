@@ -1,33 +1,60 @@
-const produtosService = require('../services/produtosService');
+const produtosService = require("../services/produtosService");
 
-// POST /produtos
-function criarProduto(req, res) {
-  const { nome, preco } = req.body;
+// ============================================================================
+// CONTROLADOR DE PRODUTOS
+// Responsável por: validações de entrada, chamadas ao serviço e respostas HTTP
+// ============================================================================
 
-  if (!nome) {
-    return res.status(400).json({ erro: 'Nome é obrigatório' });
+/**
+ * POST /produtos
+ * Cria um novo produto
+ * @param {Object} req - Request body deve conter { nome, preco }
+ * @param {Object} res - Response HTTP
+ */
+async function criarProduto(req, res) {
+  try {
+    const { nome, preco } = req.body;
+
+    if (!nome) {
+      return res.status(400).json({ erro: "Nome é obrigatório" });
+    }
+
+    if (preco == null || isNaN(preco) || preco <= 0) {
+      return res.status(400).json({
+        erro: "Preço não pode ser negativo ou zero",
+      });
+    }
+
+    const produtoCriado = await produtosService.criarProduto(nome, preco);
+    res.status(201).json(produtoCriado);
+  } catch (error) {
+    res.status(500).json({ erro: error.message });
   }
-
-  if (preco == null || preco < 0) {
-    return res.status(400).json({ erro: 'Preço inválido' });
-  }
-
-  const produto = produtosService.criarProduto(nome, preco);
-  res.status(201).json(produto);
 }
 
-// GET /produtos
-function listarProdutos(req, res) {
-  const produtos = produtosService.listarProdutos();
-  res.json(produtos);
+/**
+ * GET /produtos
+ * Lista todos os produtos
+ */
+async function listarProdutos(req, res) {
+  try {
+    const produtos = await produtosService.listarProdutos();
+    res.json(produtos);
+  } catch (error) {
+    res.status(500).json({ erro: error.message });
+  }
 }
 
-function deletarProduto(req, res) {
-  const id = Number(req.params.id);
+/**
+ * DELETE /produtos/:id
+ * Deleta um produto pelo ID
+ */
+async function deletarProduto(req, res) {
+  const idProduto = Number(req.params.id);
 
   try {
-    produtosService.deletarProduto(id);
-    res.json({ mensagem: 'Produto deletado com sucesso' });
+    await produtosService.deletarProduto(idProduto);
+    res.json({ mensagem: "Produto deletado com sucesso" });
   } catch (error) {
     res.status(400).json({ erro: error.message });
   }
@@ -36,6 +63,5 @@ function deletarProduto(req, res) {
 module.exports = {
   criarProduto,
   listarProdutos,
-  deletarProduto
+  deletarProduto,
 };
-

@@ -1,55 +1,53 @@
-const fs = require('fs');
-const path = require('path');
+const db = require("../database/db");
 
-const dataPath = path.join(__dirname, '../database/data.json');
+/**
+ * Cria um novo produto no banco de dados
+ * @param {string} nome - Nome do produto
+ * @param {number} preco - Preço do produto
+ * @returns {Object} Produto criado com id, nome e preco
+ */
+async function criarProduto(nome, preco) {
+  const resultado = await db.run(
+    "INSERT INTO products (nome, preco) VALUES (?, ?)",
+    [nome, preco],
+  );
 
-function lerDados() {
-  const data = fs.readFileSync(dataPath, 'utf-8');
-  return JSON.parse(data);
+  const produtoCriado = await db.get(
+    "SELECT id, nome, preco FROM products WHERE id = ?",
+    [resultado.lastID],
+  );
+
+  return produtoCriado;
 }
 
-function salvarDados(data) {
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+/**
+ * Lista todos os produtos disponíveis
+ * @returns {Array} Array de produtos com id, nome e preco
+ */
+async function listarProdutos() {
+  return await db.all("SELECT id, nome, preco FROM products");
 }
 
-function criarProduto(nome, preco) {
-  const data = lerDados();
+/**
+ * Deleta um produto pelo ID
+ * @param {number} id - ID do produto a deletar
+ * @throws {Error} Se o produto não existir
+ */
+async function deletarProduto(id) {
+  const produtoExistente = await db.get(
+    "SELECT id FROM products WHERE id = ?",
+    [id],
+  );
 
-  const ultimoProduto = data.produtos[data.produtos.length - 1];
-  const novoId = ultimoProduto ? ultimoProduto.id + 1 : 1;
-
-  const novoProduto = {
-    id: novoId,
-    nome,
-    preco
-  };
-
-  data.produtos.push(novoProduto);
-  salvarDados(data);
-
-  return novoProduto;
-}
-
-function listarProdutos() {
-  const data = lerDados();
-  return data.produtos;
-}
-
-function deletarProduto(id) {
-  const data = lerDados();
-
-  const index = data.produtos.findIndex(p => p.id === id);
-
-  if (index === -1) {
-    throw new Error('Produto não encontrado');
+  if (!produtoExistente) {
+    throw new Error("Produto não encontrado");
   }
 
-  data.produtos.splice(index, 1);
-  salvarDados(data);
+  await db.run("DELETE FROM products WHERE id = ?", [id]);
 }
 
 module.exports = {
   criarProduto,
   listarProdutos,
-  deletarProduto
+  deletarProduto,
 };
