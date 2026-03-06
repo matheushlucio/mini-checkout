@@ -2,630 +2,424 @@
 <html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>Mini Checkout</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<title>Mini Checkout</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <style>
-    :root {
-      --primary: #2563eb;
-      --primary-dark: #1e40af;
-      --danger: #dc2626;
-      --gray: #6b7280;
-      --bg: #f9fafb;
-      --card: #ffffff;
-    }
+<style>
 
-    * {
-      box-sizing: border-box;
-    }
+:root{
+--primary:#2563eb;
+--primary-dark:#1e40af;
+--danger:#dc2626;
+--gray:#6b7280;
+--bg:#f9fafb;
+--card:#ffffff;
+}
 
-    body {
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-      margin: 0;
-      background: var(--bg);
-      color: #111827;
-    }
+body{
+font-family:system-ui;
+margin:0;
+background:var(--bg);
+}
 
-    header {
-      background: var(--primary);
-      color: white;
-      padding: 20px;
-      text-align: center;
-      font-size: 20px;
-      font-weight: 600;
-    }
+header{
+background:var(--primary);
+color:white;
+padding:20px;
+text-align:center;
+font-size:20px;
+font-weight:600;
+}
 
-    main {
-      max-width: 1100px;
-      margin: 30px auto;
-      padding: 0 20px;
-      display: grid;
-      gap: 20px;
-    }
+main{
+max-width:1100px;
+margin:30px auto;
+padding:0 20px;
+display:grid;
+gap:20px;
+}
 
-    .card {
-      background: var(--card);
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    }
+.card{
+background:var(--card);
+padding:25px;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
+}
 
-    .card h2 {
-      margin-top: 0;
-      margin-bottom: 20px;
-      font-size: 18px;
-      border-bottom: 1px solid #e5e7eb;
-      padding-bottom: 8px;
-    }
+h2{
+margin-top:0;
+}
 
-    .form-group {
-      margin-bottom: 15px;
-    }
+input,select{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid #d1d5db;
+margin-bottom:10px;
+}
 
-    label {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 5px;
-      color: var(--gray);
-    }
+button{
+padding:10px 16px;
+border-radius:8px;
+border:none;
+cursor:pointer;
+}
 
-    input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
-      font-size: 14px;
-      transition: 0.2s;
-    }
+.btn-primary{
+background:var(--primary);
+color:white;
+}
 
-    input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-    }
+.btn-danger{
+background:var(--danger);
+color:white;
+}
 
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-    }
+.prod-grid{
+display:flex;
+flex-wrap:wrap;
+gap:12px;
+}
 
-    button {
-      padding: 10px 16px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: 0.2s;
-    }
+.prod-card{
+width:220px;
+padding:12px;
+border-radius:8px;
+background:var(--card);
+box-shadow:0 2px 8px rgba(0,0,0,0.06);
+}
 
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
+.pedido-card{
+background:#f3f4f6;
+padding:15px;
+border-radius:8px;
+margin-top:15px;
+}
 
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .btn-secondary {
-      background: #e5e7eb;
-    }
-
-    .btn-danger {
-      background: var(--danger);
-      color: white;
-    }
-
-    .btn-danger:hover {
-      opacity: 0.9;
-    }
-
-    pre {
-      background: #111827;
-      color: #10b981;
-      padding: 15px;
-      border-radius: 8px;
-      font-size: 13px;
-      overflow-x: auto;
-      margin-top: 15px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    th,
-    td {
-      padding: 8px;
-      border-bottom: 1px solid #e5e7eb;
-      text-align: left;
-    }
-
-    .pedido-card {
-      background: #f3f4f6;
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 15px;
-    }
-
-    /* Layout helpers */
-    .right-column {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .prod-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .prod-card {
-      width: 220px;
-      padding: 12px;
-      border-radius: 8px;
-      background: var(--card);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-
-    .btn-primary.strong {
-      background: var(--primary);
-      color: white;
-      padding: 12px 18px;
-      font-size: 15px;
-      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.18);
-    }
-
-    @media (min-width: 900px) {
-      main {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .right-column {
-        grid-column: 2;
-      }
-    }
-  </style>
+</style>
 </head>
 
 <body>
-  <header>🛒 Mini Checkout</header>
-
-  <main>
-    <!-- PRODUTOS -->
-    <div class="card">
-      <h2>Produtos</h2>
-
-      <div class="form-group">
-        <label>Nome do produto</label>
-        <input id="nomeProduto" />
-      </div>
-
-      <div class="form-group">
-        <label>Preço</label>
-        <input id="precoProduto" type="number" step="0.01" />
-      </div>
-
-      <div class="actions">
-        <button class="btn-primary" onclick="criarProduto()">
-          Criar
-        </button>
-        <button class="btn-secondary" onclick="carregarCatalogo()">
-          Atualizar Catálogo
-        </button>
-      </div>
-
-      <br>
-
-      <!-- Controle de deleção por ID removido (fluxo de compra não deve expor IDs) -->
-
-      <div id="produtosContainer"></div>
-      <pre id="produtos" style="display:none"></pre>
-    </div>
-
-    <div class="right-column">
-      <!-- CARRINHO -->
-      <div class="card">
-        <h2>Carrinho</h2>
-
-        <div id="cartContainer">
-          <p>Seu carrinho está vazio.</p>
-        </div>
-
-        <div style="margin-top:10px" class="actions">
-          <button class="btn-primary strong" onclick="finalizarCarrinho()">Finalizar Pedido</button>
-          <button class="btn-secondary" onclick="limparCarrinho()">Limpar Carrinho</button>
-        </div>
-      </div>
-
-      <!-- PEDIDOS (consulta) -->
-      <div class="card">
-        <h2>Pedidos Finalizados</h2>
-        <div id="pedidosContainer"></div>
-      </div>
-    </div>
-  </main>
-
-  <script>
-    const API = 'http://localhost:3000';
-
-    function limparCampo(id) {
-      document.getElementById(id).value = '';
-    }
-
-    async function carregarProdutosDropdown() {
-      const res = await fetch(`${API}/produtos`);
-      const produtos = await res.json();
-
-      const select = document.getElementById('produtoSelect');
-      select.innerHTML = '';
-
-      produtos.forEach(produto => {
-        const option = document.createElement('option');
-        option.value = produto.id;
-        option.textContent = `${produto.nome} - ${produto.preco.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        })}`;
-        select.appendChild(option);
-      });
-    }
-
-    let produtosCatalogo = [];
-    let cart = [];
-
-    async function carregarCatalogo() {
-      const res = await fetch(`${API}/produtos`);
-      produtosCatalogo = await res.json();
-      renderProdutos();
-    }
-
-    function renderProdutos() {
-      const container = document.getElementById('produtosContainer');
-      if (!produtosCatalogo || produtosCatalogo.length === 0) {
-        container.innerHTML = '<p>Nenhum produto disponível.</p>';
-        return;
-      }
-      container.innerHTML = `
-        <div class="prod-grid">
-          ${produtosCatalogo.map(p => `
-            <div class="prod-card">
-              <h4 style="margin:0 0 8px 0">${p.nome}</h4>
-              <p style="margin:0 0 12px 0;color:#6b7280">${p.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
-              <div style="text-align:right"><button class="btn-primary" onclick="addToCart(${p.id})">Adicionar ao Carrinho</button></div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    function addToCart(produtoId) {
-      const produto = produtosCatalogo.find(p => p.id === produtoId);
-      if (!produto) return alert('Produto não encontrado');
-
-      const existing = cart.find(i => i.produtoId === produtoId);
-      if (existing) {
-        existing.quantidade += 1;
-      } else {
-        cart.push({ produtoId: produto.id, nome: produto.nome, preco: produto.preco, quantidade: 1 });
-      }
-      renderCart();
-    }
-
-    function renderCart() {
-      const container = document.getElementById('cartContainer');
-      if (!cart || cart.length === 0) {
-        container.innerHTML = '<p>Seu carrinho está vazio.</p>';
-        return;
-      }
-
-      const rows = cart.map(item => `
-        <tr>
-          <td>${item.nome}</td>
-          <td style="width:140px;text-align:center">
-            <button onclick="decreaseQty(${item.produtoId})">-</button>
-            <span style="margin:0 8px">${item.quantidade}</span>
-            <button onclick="increaseQty(${item.produtoId})">+</button>
-          </td>
-          <td>${item.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-          <td style="text-align:right"><button class="btn-danger" onclick="removeFromCart(${item.produtoId})">Remover</button></td>
-        </tr>
-      `).join('');
-
-      const total = cart.reduce((s, it) => {
-        const itemTotal = (it.preco || 0) * (it.quantidade || 0);
-        return s + itemTotal;
-      }, 0);
-
-      container.innerHTML = `
-        <table>
-          <thead>
-            <tr><th>Produto</th><th>Qtd</th><th>Preço Unit.</th><th></th></tr>
-          </thead>
-          <tbody>
-            ${rows}
-          </tbody>
-        </table>
-        <p style="text-align:right;margin-top:10px"><strong>Total:</strong> ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
-      `;
-    }
-
-    function increaseQty(produtoId) {
-      const it = cart.find(i => i.produtoId === produtoId);
-      if (!it) return;
-      it.quantidade += 1;
-      renderCart();
-    }
-
-    function decreaseQty(produtoId) {
-      const it = cart.find(i => i.produtoId === produtoId);
-      if (!it) return;
-      it.quantidade -= 1;
-      if (it.quantidade <= 0) removeFromCart(produtoId);
-      else renderCart();
-    }
-
-    function removeFromCart(produtoId) {
-      cart = cart.filter(i => i.produtoId !== produtoId);
-      renderCart();
-    }
-
-    function limparCarrinho() {
-      cart = [];
-      renderCart();
-    }
-
-    async function finalizarCarrinho() {
-      if (!cart || cart.length === 0) {
-        return alert('Carrinho vazio. Adicione produtos antes de finalizar.');
-      }
-
-      // Validar cada item antes de enviar
-      for (const item of cart) {
-        if (!item.produtoId || item.quantidade <= 0) {
-          return alert('Erro: há itens inválidos no carrinho.');
-        }
-      }
-
-      try {
-        // 1. Criar pedido vazio
-        const resPedido = await fetch(`${API}/pedidos`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-
-        const pedido = await resPedido.json();
-        if (!resPedido.ok) {
-          alert(pedido.erro || 'Erro ao criar pedido');
-          return;
-        }
-
-        // 2. Adicionar itens ao pedido
-        for (const item of cart) {
-          const resItem = await fetch(`${API}/pedidos/${pedido.id}/itens`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ produtoId: item.produtoId, quantidade: item.quantidade })
-          });
-
-          if (!resItem.ok) {
-            const erroProduto = await resItem.json();
-            alert(erroProduto.erro || `Erro ao adicionar item ${item.produtoId}`);
-            return;
-          }
-        }
-
-        // 3. Finalizar pedido
-        const resFinalizar = await fetch(`${API}/pedidos/${pedido.id}/finalizar`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (!resFinalizar.ok) {
-          const erroFinalizar = await resFinalizar.json();
-          alert(erroFinalizar.erro || 'Erro ao finalizar pedido');
-          return;
-        }
-
-        alert(`Pedido criado com sucesso! ID: ${pedido.id} | Total: ${pedido.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`);
-        limparCarrinho();
-        listarPedidos();
-      } catch (error) {
-        alert(`Erro: ${error.message}`);
-      }
-    }
-
-    async function criarProduto() {
-      const nome = nomeProduto.value;
-      const preco = Number(precoProduto.value);
-
-      if (!nome) return alert('Nome do produto é obrigatório.');
-      if (!preco || preco <= 0) return alert('Preço não pode ser negativo ou zero.');
-
-      const res = await fetch(`${API}/produtos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, preco })
-      });
-
-      const data = await res.json();
-      if (!res.ok) return alert(data.erro || 'Erro ao criar produto');
-
-      limparCampo('nomeProduto');
-      limparCampo('precoProduto');
-      carregarCatalogo();
-      alert('Produto criado com sucesso');
-    }
-
-    async function listarProdutos() {
-      const res = await fetch(`${API}/produtos`);
-      const data = await res.json();
-      produtos.textContent = JSON.stringify(data, null, 2);
-    }
-
-    async function deletarProduto() {
-      const id = deleteProdutoId.value;
-      if (!id) return alert('Informe o ID.');
-
-      await fetch(`${API}/produtos/${id}`, { method: 'DELETE' });
-
-      limparCampo('deleteProdutoId');
-      listarProdutos();
-      alert('Produto deletado');
-    }
-
-    async function criarPedido() {
-      const produtoId = Number(document.getElementById('produtoSelect').value);
-      const quantidade = Number(document.getElementById('quantidade').value);
-
-      if (!produtoId || !quantidade) {
-        alert('Informe produto e quantidade para criar o pedido.');
-        return;
-      }
-
-      const res = await fetch(`${API}/pedidos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          itens: [{ produtoId, quantidade }]
-        })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.erro);
-        return;
-      }
-
-      alert(`Pedido criado com ID ${data.id}`);
-      listarPedidos();
-    }
-
-
-    async function listarPedidos() {
-      const res = await fetch(`${API}/pedidos`);
-      const pedidos = await res.json();
-
-      const container = document.getElementById('pedidosContainer');
-      container.innerHTML = '';
-
-      if (pedidos.length === 0) {
-        container.innerHTML = '<p>Nenhum pedido encontrado.</p>';
-        return;
-      }
-
-      pedidos.forEach(pedido => {
-        const totalFormatado = pedido.total.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        });
-
-        const itensHtml = pedido.itens.map(item => `
-      <tr>
-        <td>${item.nome}</td>
-        <td>${item.quantidade}</td>
-        <td>${item.preco.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        })}</td>
-      </tr>
-    `).join('');
-
-        const dataFormatada = pedido.data ? new Date(pedido.data).toLocaleString('pt-BR') : '';
-
-        container.innerHTML += `
-      <div class="pedido-card">
-        <h3>Pedido #${pedido.id} - ${pedido.status}</h3>
-        <p style="margin:6px 0 10px 0;color:var(--gray)">Data: ${dataFormatada}</p>
-        <table>
-          <thead>
-            <tr>
-              <th>Produto</th>
-              <th>Qtd</th>
-              <th>Preço</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itensHtml}
-          </tbody>
-        </table>
-        <p><strong>Total:</strong> ${totalFormatado}</p>
-      </div>
-    `;
-      });
-    }
-
-    async function deletarPedido() {
-      const id = deletePedidoId.value;
-      if (!id) return alert('Informe o ID.');
-
-      await fetch(`${API}/pedidos/${id}`, { method: 'DELETE' });
-
-      limparCampo('deletePedidoId');
-      listarPedidos();
-      alert('Pedido deletado');
-    }
-
-    async function adicionarItem() {
-      const pedidoId = Number(document.getElementById('pedidoId').value);
-      const produtoId = Number(document.getElementById('produtoSelect').value);
-      const quantidade = Number(document.getElementById('quantidade').value);
-
-      if (!pedidoId || !produtoId || !quantidade) {
-        alert('Preencha todos os campos.');
-        return;
-      }
-
-      const res = await fetch(`${API}/pedidos/${pedidoId}/itens`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ produtoId, quantidade })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.erro);
-        return;
-      }
-
-      listarPedidos();
-      alert('Item adicionado!');
-    }
-
-
-
-    async function finalizarPedido() {
-      const pedidoId = Number(document.getElementById('pedidoId').value);
-
-      if (!pedidoId) {
-        alert('Informe o ID do pedido.');
-        return;
-      }
-
-      await fetch(`${API}/pedidos/${pedidoId}/finalizar`, {
-        method: 'POST'
-      });
-
-      listarPedidos();
-      alert('Pedido finalizado');
-    }
-
-    window.onload = () => {
-      carregarCatalogo();
-      listarPedidos();
-      renderCart();
-    };
-
-  </script>
+
+<header>🛒 Mini Checkout</header>
+
+<main>
+
+<!-- CLIENTES -->
+<div class="card">
+
+<h2>Clientes</h2>
+
+<input id="nomeCliente" placeholder="Nome do cliente"/>
+<input id="emailCliente" placeholder="Email"/>
+
+<button class="btn-primary" onclick="criarCliente()">Cadastrar Cliente</button>
+
+<br><br>
+
+<select id="clienteSelect"></select>
+
+<div id="clientesContainer"></div>
+
+</div>
+
+
+<!-- PRODUTOS -->
+<div class="card">
+
+<h2>Produtos</h2>
+
+<input id="nomeProduto" placeholder="Nome produto"/>
+<input id="precoProduto" type="number" placeholder="Preço"/>
+
+<button class="btn-primary" onclick="criarProduto()">Criar Produto</button>
+<button onclick="carregarCatalogo()">Atualizar</button>
+
+<div id="produtosContainer"></div>
+
+</div>
+
+
+<!-- CARRINHO -->
+<div class="card">
+
+<h2>Carrinho</h2>
+
+<div id="cartContainer"></div>
+
+<button id="btnFinalizar" class="btn-primary" onclick="finalizarCarrinho()">
+Finalizar Pedido
+</button>
+
+<button onclick="limparCarrinho()">
+Limpar
+</button>
+
+</div>
+
+
+<!-- PEDIDOS -->
+<div class="card">
+
+<h2>Pedidos</h2>
+
+<div id="pedidosContainer"></div>
+
+</div>
+
+</main>
+
+<script>
+
+const API="http://localhost:3000"
+
+let produtosCatalogo=[]
+let cart=JSON.parse(localStorage.getItem("cart"))||[]
+
+function salvarCart(){
+localStorage.setItem("cart",JSON.stringify(cart))
+}
+
+function limparCarrinho(){
+cart=[]
+salvarCart()
+renderCart()
+}
+
+async function criarCliente(){
+
+const nome=nomeCliente.value
+const email=emailCliente.value
+
+if(!nome||!email){
+alert("Preencha nome e email")
+return
+}
+
+await fetch(`${API}/clientes`,{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({nome,email})
+})
+
+nomeCliente.value=""
+emailCliente.value=""
+
+listarClientes()
+
+}
+
+async function listarClientes(){
+
+const res=await fetch(`${API}/clientes`)
+const clientes=await res.json()
+
+clienteSelect.innerHTML=""
+clientesContainer.innerHTML=""
+
+clientes.forEach(c=>{
+
+clienteSelect.innerHTML+=`
+<option value="${c.id}">
+${c.nome} - ${c.email}
+</option>
+`
+
+clientesContainer.innerHTML+=`
+<p>${c.nome} - ${c.email}</p>
+`
+
+})
+
+}
+
+async function criarProduto(){
+
+const nome=nomeProduto.value
+const preco=Number(precoProduto.value)
+
+await fetch(`${API}/produtos`,{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({nome,preco})
+})
+
+nomeProduto.value=""
+precoProduto.value=""
+
+carregarCatalogo()
+
+}
+
+async function carregarCatalogo(){
+
+const res=await fetch(`${API}/produtos`)
+produtosCatalogo=await res.json()
+
+renderProdutos()
+
+}
+
+function renderProdutos(){
+
+const container=document.getElementById("produtosContainer")
+
+container.innerHTML=`
+<div class="prod-grid">
+
+${produtosCatalogo.map(p=>`
+
+<div class="prod-card">
+
+<h4>${p.nome}</h4>
+
+<p>R$ ${p.preco}</p>
+
+<button class="btn-primary" onclick="addToCart(${p.id})">
+Adicionar (${cart.find(i=>i.produtoId===p.id)?.quantidade||0})
+</button>
+
+</div>
+
+`).join("")}
+
+</div>
+`
+
+}
+
+function addToCart(id){
+
+const produto=produtosCatalogo.find(p=>p.id===id)
+
+const existing=cart.find(i=>i.produtoId===id)
+
+if(existing){
+existing.quantidade++
+}else{
+cart.push({
+produtoId:produto.id,
+nome:produto.nome,
+preco:produto.preco,
+quantidade:1
+})
+}
+
+salvarCart()
+
+renderCart()
+renderProdutos()
+
+}
+
+function renderCart(){
+
+const container=document.getElementById("cartContainer")
+
+if(cart.length===0){
+container.innerHTML="Carrinho vazio"
+return
+}
+
+container.innerHTML=cart.map(i=>`
+<p>
+${i.nome} x${i.quantidade}
+<button onclick="removeFromCart(${i.produtoId})">remover</button>
+</p>
+`).join("")
+
+}
+
+function removeFromCart(id){
+cart=cart.filter(i=>i.produtoId!==id)
+salvarCart()
+renderCart()
+renderProdutos()
+}
+
+async function finalizarCarrinho(){
+
+const clienteId=clienteSelect.value
+
+if(!clienteId){
+alert("Selecione um cliente")
+return
+}
+
+const btn=document.getElementById("btnFinalizar")
+btn.disabled=true
+btn.innerText="Processando..."
+
+const resPedido=await fetch(`${API}/pedidos`,{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({clienteId})
+})
+
+const pedido=await resPedido.json()
+
+for(const item of cart){
+
+await fetch(`${API}/pedidos/${pedido.id}/itens`,{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+produtoId:item.produtoId,
+quantidade:item.quantidade
+})
+})
+
+}
+
+await fetch(`${API}/pedidos/${pedido.id}/finalizar`,{
+method:"POST"
+})
+
+alert("Pedido criado!")
+
+limparCarrinho()
+
+listarPedidos()
+
+btn.disabled=false
+btn.innerText="Finalizar Pedido"
+
+}
+
+async function listarPedidos(){
+
+const res=await fetch(`${API}/pedidos`)
+const pedidos=await res.json()
+
+const container=document.getElementById("pedidosContainer")
+
+container.innerHTML=""
+
+pedidos.forEach(p=>{
+
+container.innerHTML+=`
+<div class="pedido-card">
+
+<h3>Pedido #${p.id}</h3>
+
+<p>Status: ${p.status}</p>
+
+</div>
+`
+
+})
+
+}
+
+window.onload=()=>{
+listarClientes()
+carregarCatalogo()
+listarPedidos()
+renderCart()
+}
+
+</script>
+
 </body>
-
 </html>

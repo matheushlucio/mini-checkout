@@ -41,8 +41,26 @@ async function init() {
 
   await run(`CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    status TEXT NOT NULL
+    status TEXT NOT NULL,
+    client_id INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(client_id) REFERENCES clients(id)
   )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS clients (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nome TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+
+  // Ensure client_id column exists
+  const orderCols = await all("PRAGMA table_info('orders')");
+  const hasClientId = orderCols.some((c) => c.name === "client_id");
+
+  if (!hasClientId) {
+    await run("ALTER TABLE orders ADD COLUMN client_id INTEGER");
+  }
 
   // Ensure created_at column exists (older DB files may lack it)
   const cols = await all("PRAGMA table_info('orders')");
